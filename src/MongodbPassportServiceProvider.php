@@ -9,6 +9,7 @@ use Laravel\Passport\Bridge\AccessTokenRepository as BridgeAccessTokenRepository
 use Laravel\Passport\Bridge\ClientRepository as BridgeClientRepository;
 use Laravel\Passport\Bridge\RefreshTokenRepository as BridgeRefreshTokenRepository;
 use Laravel\Passport\ClientRepository as PassportClientRepository;
+use Laravel\Passport\Console\ClientCommand as ConsoleClientCommand;
 use Laravel\Passport\Passport;
 use Laravel\Passport\PersonalAccessTokenFactory as PassportPersonalAccessTokenFactory;
 use Laravel\Passport\RefreshTokenRepository as PassportRefreshTokenRepository;
@@ -17,6 +18,7 @@ use League\OAuth2\Server\ResourceServer;
 use StevePorter92\Mongodb\Bridge\AccessTokenRepository;
 use StevePorter92\Mongodb\Bridge\ClientRepository;
 use StevePorter92\Mongodb\Bridge\RefreshTokenRepository;
+use StevePorter92\Mongodb\Console\ClientCommand;
 use StevePorter92\Mongodb\Passport\AuthCode;
 use StevePorter92\Mongodb\Passport\Client;
 use StevePorter92\Mongodb\Passport\ClientModelRepository;
@@ -37,6 +39,12 @@ class MongodbPassportServiceProvider extends ServiceProvider
         Passport::usePersonalAccessClientModel(PersonalAccessClient::class);
         Passport::useRefreshTokenModel(RefreshToken::class);
         Passport::useTokenModel(Token::class);
+
+        if ($this->app->runningInConsole()) {
+            $this->app->extend(ConsoleClientCommand::class, function () {
+                return $this->app->make(ClientCommand::class);
+            });
+        }
     }
 
     public function register()
